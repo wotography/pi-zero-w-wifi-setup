@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+.claude/
+.vscode/
+.idea/
+
+# Local snapshots, field logs and anything with real credentials
+archive/
+pi-logs/
+*.bak
+*.zip

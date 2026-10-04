@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{DEVICE_NAME}} WiFi Setup</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-device-name="{{DEVICE_NAME}}" data-ap-ssid="{{AP_SSID}}">
+<main class="card">
+  <header class="topbar">
+    <h1>{{DEVICE_NAME}} WiFi Setup</h1>
+    <button class="menu-btn" id="menu-btn" type="button" aria-label="Menu"
+            aria-haspopup="true" aria-expanded="false" aria-controls="menu">&#9776;</button>
+    <nav id="menu" class="menu hidden">
+      <button class="menu-item" id="exit-setup-btn" type="button">Leave setup mode &amp; reconnect</button>
+      <button class="menu-item danger" id="shutdown-btn" type="button">Shutdown {{DEVICE_NAME}}</button>
+    </nav>
+  </header>
+  <p id="back-msg" class="muted"></p>
+  <p class="sub">Choose a WiFi network to connect to or enter the network name manually (hidden SSIDs) below.</p>
+
+  <section id="unsafe-banner" class="hidden warn">
+    <span>Open setup AP &mdash; powers {{DEVICE_NAME}} off in
+      <b id="countdown">--:--</b></span>
+  </section>
+
+  <section id="network-list">
+    <ul id="networks"></ul>
+
+    <div id="manual-entry">
+      <label for="manual-ssid">Enter Network SSID:</label>
+      <input id="manual-ssid" type="text" autocomplete="off" maxlength="32"
+             placeholder="e.g. MyHomeWiFi">
+      <button class="btn ghost" id="manual-btn" type="button">Use this network</button>
+      <p class="hint">Hidden SSIDs are not shown in the list &mdash; type the exact name here.</p>
+    </div>
+
+    <div class="row actions">
+      <button class="btn ghost" id="rescan-btn" type="button">Rescan</button>
+    </div>
+    <div class="hint-block">
+      <p class="hint"><b>Rescan:</b> Briefly pauses the setup AP to scan the area directly, then restarts the AP. Your phone reconnects to it automatically after a few seconds. Use this if your network isn't listed.</p>
+      <p class="hint"><b>Leave setup mode &amp; reconnect</b> (in the &#9776; menu): Stops the setup AP and reconnects to a saved network &mdash; no reboot. The AP only reopens automatically if no saved network connects within 60 seconds.</p>
+      <p class="hint"><b>Shutdown</b> (in the &#9776; menu): Powers the device off cleanly. It stays off until its power is unplugged and plugged back in &mdash; there is no way to switch it on remotely.</p>
+      <p class="hint"><b>Marked <span class="saved">&#10003;</span> (saved) and <span class="star-badge">&#9733;</span> (home network):</b> <span class="saved">&#10003;</span> means the device already knows this SSID (it is in the saved-networks list). That only means its credentials are stored &mdash; a recent connection attempt may still have failed. Reselect it and save again to update the password. <span class="star-badge">&#9733;</span> marks the home network, which is tried first.</p>
+    </div>
+    <p id="scan-msg" class="muted"></p>
+
+    <div id="saved-section" class="hint-block">
+      <p class="hint"><b>Saved networks</b> &mdash; everything the device will try
+        when it connects. <span class="star-badge">&#9733;</span> marks the
+        <b>home network</b>: it is tried first, and the other saved networks are
+        still used whenever it is out of range. Changes here are stored and take
+        effect at the next connection (or after a reboot) &mdash; the device does
+        not switch networks on its own.</p>
+      <ul id="saved-networks"></ul>
+      <p id="saved-msg" class="muted"></p>
+    </div>
+  </section>
+
+  <section id="connect-form" class="hidden">
+    <button class="btn ghost" id="back-btn" type="button">&larr; Back to list</button>
+    <h2 id="chosen-ssid"></h2>
+    <form id="save-form">
+      <label for="password">Password <span class="muted">(leave empty if open)</span></label>
+      <input id="password" type="password" autocomplete="new-password" placeholder="WiFi password">
+      <label class="checkline" for="preferred">
+        <input id="preferred" type="checkbox">
+        <span>Make this my <b>home network</b></span>
+      </label>
+      <p class="hint">Tick it for the network the device should try <b>first
+        every time it connects</b>; your other saved networks are used as
+        fallback whenever it is not available. Leave it unchecked for a network
+        you only want as a backup. It is pre-ticked only for the network that
+        already is the home network.</p>
+      <div class="row">
+        <button class="btn primary" type="submit" data-mode="live">Save &amp; connect</button>
+        <button class="btn" type="submit" data-mode="reboot" formnovalidate>Save &amp; reboot</button>
+      </div>
+      <p class="hint"><b>Save &amp; connect:</b> Saves the network and switches to it immediately &mdash; no reboot. The setup AP goes down for a moment while the device reconnects. If the switch fails, use "Save &amp; reboot".</p>
+      <p class="hint"><b>Save &amp; reboot:</b> Saves the network and reboots the device so it connects reliably. The most robust choice, especially when "Save &amp; connect" fails.</p>
+      <p class="hint">Saving an already-saved network keeps its home-network star, so you can correct a password without losing the preference.</p>
+    </form>
+    <p id="msg" class="muted"></p>
+  </section>
+
+  <section id="log-section" class="hidden">
+    <details open>
+      <summary>Daemon log</summary>
+      <pre id="log"></pre>
+    </details>
+  </section>
+</main>
+
+<!-- In-page confirmation: the captive-portal sheet (macOS/iOS) silently
+     suppresses window.confirm(), so destructive actions ask here instead. -->
+<div id="confirm-box" class="overlay hidden" role="dialog" aria-modal="true"
+     aria-labelledby="confirm-text">
+  <div class="dialog">
+    <p id="confirm-text"></p>
+    <div class="row">
+      <button class="btn" id="confirm-cancel" type="button">Cancel</button>
+      <button class="btn danger" id="confirm-ok" type="button">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

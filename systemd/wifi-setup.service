@@ -1,0 +1,40 @@
+[Unit]
+Description=wifi-setup: WiFi supervisor with fallback setup AP
+# Start only once the wlan0 device actually exists and the OS's client stack
+# (dhcpcd + wpa_supplicant) is up, so the daemon's connect window is not
+# wasted on a half-loaded boot.  hostapd/dnsmasq are ordered BEFORE us (not
+# pulled in): if they are somehow enabled, they start first and the daemon
+# stops them before it configures wlan0 — deterministic, without ever
+# changing their enabled state.
+#
+# The wpa_supplicant unit we ask for is the PER-INTERFACE @wlan0 one, which
+# actually binds wlan0.  The monolithic wpa_supplicant.service runs
+# `-u -s -O /run/wpa_supplicant` with no `-i`, so it never binds the interface
+# at all (see Changelog 0.6) — and naming it here used to pull it in on
+# every boot, where it fought the @-unit over wlan0's scan schedule until the
+# daemon killed it seconds later.  The installer disables that unit; this line
+# simply stops us from resurrecting it.
+#
+# Deliberately NOT ordered after time-sync.target / systemd-time-wait-sync:
+# there is no RTC, and NTP needs the very network this daemon brings up (or
+# replaces with the setup AP) — waiting for a synced clock without a network
+# would leave the device with neither, unreachable.  The daemon instead logs
+# uptime on every line, a boot reference at start and a "Wall clock stepped"
+# line when NTP corrects the clock.
+After=network.target sys-subsystem-net-devices-wlan0.device dhcpcd.service wpa_supplicant@wlan0.service hostapd.service dnsmasq.service
+Wants=wpa_supplicant@wlan0.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/wifi-setup/wifi_setup_daemon.py
+Environment=WIFI_LOG_LEVEL=INFO
+EnvironmentFile=-/etc/wifi-setup/wifi-setup.env
+# Restart only on crashes (non-zero exit).  A normal stop (SIGTERM) and the
+# open-AP poweroff exit 0 and must NOT be restarted.
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
