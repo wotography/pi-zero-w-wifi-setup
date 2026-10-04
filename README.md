@@ -242,4 +242,7 @@ enabled `ssh`; revert those if you want the previous state back.
 
 ## License
 
-Mozilla Public License Version 2.0
+[Mozilla Public License 2.0](LICENSE). In short: you may use, modify and
+redistribute wifi-setup, also as part of a closed-source product. If you
+distribute modified versions of *its files*, those files must stay under the
+MPL and their source must be made available.

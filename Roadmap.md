@@ -2,8 +2,6 @@
 
 ## Before / around the first public release
 
-- **License.** Not decided yet; until a `LICENSE` file exists, all rights are
-  reserved and nobody may legally reuse the code.
 - **On-device pass on a fresh install.** Verified so far on the original
   device: captive portal on macOS and iOS, *Leave setup mode*. Still to prove,
   ideally on a freshly flashed Bullseye/Legacy image that has never seen the

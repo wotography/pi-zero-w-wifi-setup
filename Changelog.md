@@ -55,6 +55,7 @@ password. Covered by `tests/test_ap_password.py`, which checks the installer's
 shell functions against the daemon's rule.
 
 **Project.**
+- Licensed under the **Mozilla Public License 2.0** (`LICENSE`).
 - Automated tests in `tests/` (stdlib `unittest`, run anywhere): store, conf
   generation, dnsmasq conf, logging helpers, naming, and the HTTP layer
   in-process (captive redirect, Host/Origin guards, rendering, shutdown).
